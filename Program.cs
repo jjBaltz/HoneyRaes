@@ -131,13 +131,21 @@ app.MapGet("/employees/{id}", (int id) =>
     {
         return Results.NotFound();
     }
-    employee.ServiceTickets = serviceTickets.Where(st => st.EmployeeId == id).ToList();
+    employee.ServiceTickets = serviceTickets.Select(x => new ServiceTicket { CustomerId = x.CustomerId, EmployeeId = x.EmployeeId, DateCompleted = x.DateCompleted, Description = x.Description, Emergency = x.Emergency, Id = x.Id}).Where(st => st.EmployeeId == id).ToList();
     return Results.Ok(employee);
 });
 
 app.MapGet("/servicetickets", () =>
 {
     return serviceTickets;
+});
+
+app.MapPost("/servicetickets", (ServiceTicket serviceTicket) =>
+{
+    // creates a new id (When we get to it later, our SQL database will do this for us like JSON Server did!)
+    serviceTicket.Id = serviceTickets.Max(st => st.Id) + 1;
+    serviceTickets.Add(serviceTicket);
+    return serviceTicket;
 });
 
 app.MapGet("/servicetickets/{id}", (int id) =>
@@ -147,7 +155,7 @@ app.MapGet("/servicetickets/{id}", (int id) =>
     {
         return Results.NotFound();
     }
-    serviceTicket.Employee = employees.FirstOrDefault(em => em.Id == serviceTicket.EmployeeId);
+    serviceTicket.Employee = employees.Select(x => new Employee { Id = x.Id, Name = x.Name, Specialty = x.Specialty }).FirstOrDefault(em => em.Id == serviceTicket.EmployeeId);
     serviceTicket.Customer = customers.FirstOrDefault(cust => cust.Id == serviceTicket.CustomerId);
     return Results.Ok(serviceTicket);
 });
