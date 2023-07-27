@@ -160,4 +160,11 @@ app.MapGet("/servicetickets/{id}", (int id) =>
     return Results.Ok(serviceTicket);
 });
 
+app.MapDelete("/servicetickets/{id}", (int id) =>
+{
+    ServiceTicket serviceTicket = serviceTickets.FirstOrDefault(st => st.Id == id);
+    serviceTickets.Remove(serviceTicket);
+    return serviceTicket;
+});
+
 app.Run();
